@@ -1,0 +1,23 @@
+apiVersion: v1alpha1
+kind: OciPolicy
+
+steps:
+- name: container-build
+  attestations:
+  - type: https://slsa.dev/provenance/v0.2
+  - type: https://spdx.dev/Document
+  - type: https://github.com/michaelvl/gha-reusable-workflows/pr-provenance
+  functionaries:
+  - type: fulcio
+    certificate:
+      identityRegexp: "https://github.com/michaelvl/gha-reusable-workflows/.github/workflows/container-build-push.yaml@refs/.*"
+      oidcIssuer: https://token.actions.githubusercontent.com
+
+- name: container-scan
+  attestations:
+  - type: https://cosign.sigstore.dev/attestation/vuln/v1
+  functionaries:
+  - type: fulcio
+    certificate:
+      identityRegexp: "https://github.com/michaelvl/gha-reusable-workflows/.github/workflows/container-scan.yaml@refs/.*"
+      oidcIssuer: https://token.actions.githubusercontent.com
