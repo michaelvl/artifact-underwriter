@@ -5,7 +5,9 @@ import (
 	"fmt"
 
 	"github.com/michaelvl/artifact-underwriter/cmd/options"
+	"github.com/michaelvl/artifact-underwriter/internal/attestations"
 	"github.com/michaelvl/artifact-underwriter/internal/policy"
+	"github.com/michaelvl/artifact-underwriter/internal/vsa"
 	"github.com/spf13/cobra"
 )
 
@@ -25,10 +27,19 @@ func EvaluatePolicyCmd() *cobra.Command {
 				return err
 			}
 
-			err = pol.Evaluate(context.Background(), args[0], opts.OutputAttestationsPath)
+			atts, statements, err := attestations.GetAttestations(context.Background(), args[0], pol)
 			if err != nil {
 				return err
 			}
+			if opts.OutputAttestationsPath != "" {
+				attestations.WriteAttestations(statements, opts.OutputAttestationsPath)
+			}
+			err = policy.Evaluate(pol, statements)
+			if err != nil {
+				return err
+			}
+
+			vsa.Generate(atts, "PASSED")
 
 			return nil
 		},

@@ -21,3 +21,7 @@ steps:
     certificate:
       identityRegexp: "https://github.com/michaelvl/gha-reusable-workflows/.github/workflows/container-scan.yaml@refs/.*"
       oidcIssuer: https://token.actions.githubusercontent.com
+
+policy:
+  rego:
+    path: abc

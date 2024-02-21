@@ -49,6 +49,8 @@ attestation (VSA)](https://slsa.dev/spec/v1.0/verification_summary):
     "policy": {
 	  ... what policy was used to verify
     },
+
+	... summary of the verification
     "slsaVersion": "1.0",
     "timeVerified": "2024-02-10T16:11:33+00:00",
     "verificationResult": "PASSED",
