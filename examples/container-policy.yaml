@@ -24,4 +24,4 @@ steps:
 
 policy:
   rego:
-    path: abc
+    path: examples/policy/governance.rego

@@ -8,12 +8,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/michaelvl/artifact-underwriter/internal/policy/types"
 	"github.com/google/go-containerregistry/pkg/name"
+	"github.com/in-toto/in-toto-golang/in_toto"
+	"github.com/michaelvl/artifact-underwriter/internal/policy/types"
 	"github.com/sigstore/cosign/v2/cmd/cosign/cli/fulcio"
 	"github.com/sigstore/cosign/v2/pkg/cosign"
 	"github.com/sigstore/cosign/v2/pkg/oci"
-	"github.com/in-toto/in-toto-golang/in_toto"
 )
 
 func GetAttestations(ctx context.Context, digest name.Digest, policy *types.OciPolicy) ([]oci.Signature, []in_toto.Statement, error) {
@@ -24,7 +24,7 @@ func GetAttestations(ctx context.Context, digest name.Digest, policy *types.OciP
 	log.Printf("retreiving attestations for %v\n", digest)
 
 	co := cosign.CheckOpts{
-		ClaimVerifier:     cosign.IntotoSubjectClaimVerifier,
+		ClaimVerifier: cosign.IntotoSubjectClaimVerifier,
 		// RekorClient:       rekorClient,
 	}
 	co.RootCerts, err = fulcio.GetRoots()

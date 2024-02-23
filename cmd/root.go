@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"log"
 	"io/ioutil"
+	"log"
 
 	"github.com/michaelvl/artifact-underwriter/cmd/options"
 	"github.com/michaelvl/artifact-underwriter/internal/build"
@@ -20,7 +20,7 @@ func New() *cobra.Command {
 		Version: build.Version,
 		Short:   "A tool for evaluating artifacts and create in-toto attestations",
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			log.SetFlags(log.Ltime)
+			log.SetFlags(log.Ltime | log.Lmicroseconds)
 			if !globalOpts.Verbose {
 				log.SetOutput(ioutil.Discard)
 			}

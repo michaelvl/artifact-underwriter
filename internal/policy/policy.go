@@ -2,13 +2,13 @@ package policy
 
 import (
 	"fmt"
-	"log"
 	"os"
 
+	"github.com/in-toto/in-toto-golang/in_toto"
 	"github.com/michaelvl/artifact-underwriter/internal/attestations"
 	"github.com/michaelvl/artifact-underwriter/internal/policy/types"
+	"github.com/michaelvl/artifact-underwriter/internal/rego"
 	"sigs.k8s.io/yaml"
-	"github.com/in-toto/in-toto-golang/in_toto"
 )
 
 func Load(fname string) (*types.OciPolicy, error) {
@@ -24,15 +24,15 @@ func Load(fname string) (*types.OciPolicy, error) {
 	return policy, nil
 }
 
-func Evaluate(policy *types.OciPolicy, statements []in_toto.Statement) error {
+func Evaluate(policy *types.OciPolicy, statements []in_toto.Statement) (bool, error) {
 	jsonData, err := attestations.StatementsToJson(statements)
 	if err != nil {
-		return fmt.Errorf("decoding attestions json: %w", err)
+		return false, fmt.Errorf("decoding attestions json: %w", err)
 	}
 
-	// TODO
-
-	log.Printf("Len evaluate json: %v\n", len(jsonData))
-
-	return nil
+	allowed, err := rego.Evaluate(policy, jsonData)
+	if err != nil {
+		return false, fmt.Errorf("evaluating rego policy: %w", err)
+	}
+	return allowed, nil
 }

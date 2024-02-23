@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"log"
 
 	"github.com/michaelvl/artifact-underwriter/cmd/options"
 	"github.com/michaelvl/artifact-underwriter/internal/attestations"
@@ -15,8 +16,8 @@ func EvaluatePolicyCmd() *cobra.Command {
 	opts := options.EvaluateOptions{}
 
 	cmd := &cobra.Command{
-		Use:   "evaluate-policy <oci-artifact-ref>",
-		Short: "Evaluate policy against OCI artifact",
+		Use:        "evaluate-policy <oci-artifact-ref>",
+		Short:      "Evaluate policy against OCI artifact",
 		Args:       cobra.MinimumNArgs(1),
 		ArgAliases: []string{"oci-artifact-ref"},
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -34,15 +35,23 @@ func EvaluatePolicyCmd() *cobra.Command {
 				return err
 			}
 			if opts.OutputAttestationsPath != "" {
-				attestations.WriteStatements(statements, opts.OutputAttestationsPath)
+				err = attestations.WriteStatements(statements, opts.OutputAttestationsPath)
+				if err != nil {
+					return err
+				}
 			}
-			err = policy.Evaluate(pol, statements)
+			allowed, err := policy.Evaluate(pol, statements)
 			if err != nil {
 				return err
 			}
+			var allowedText = "FAILED"
+			if allowed {
+				allowedText = "PASSED"
+			}
+			log.Printf("policy evaluation status: %v\n", allowedText)
 
 			if opts.OutputVsaPath != "" {
-				vsa, err := vsa.Generate(digest, atts, "PASSED")
+				vsa, err := vsa.Generate(digest, atts, allowedText)
 				if err != nil {
 					return err
 				}

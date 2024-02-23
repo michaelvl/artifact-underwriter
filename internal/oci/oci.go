@@ -2,6 +2,7 @@ package oci
 
 import (
 	"fmt"
+
 	"github.com/google/go-containerregistry/pkg/name"
 	ociremote "github.com/sigstore/cosign/v2/pkg/oci/remote"
 )

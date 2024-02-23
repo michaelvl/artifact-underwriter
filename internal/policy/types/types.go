@@ -1,7 +1,7 @@
 package types
 
 type Attestation struct {
-	Type       string `json:"type"`
+	Type string `json:"type"`
 }
 
 type Certificate struct {
@@ -20,8 +20,8 @@ type Policy struct {
 
 type RegoPolicy struct {
 	Bundle string `json:"bundle"`
-	Path string   `json:"path"`
-	Uri string    `json:"uri"`
+	Path   string `json:"path"`
+	Uri    string `json:"uri"`
 }
 
 type Step struct {
@@ -31,7 +31,7 @@ type Step struct {
 }
 
 type OciPolicy struct {
-	Kind    string `json:"kind"`
-	Steps   []Step `json:"steps"`
-	Policy  Policy `json:"policy"`
+	Kind   string `json:"kind"`
+	Steps  []Step `json:"steps"`
+	Policy Policy `json:"policy"`
 }

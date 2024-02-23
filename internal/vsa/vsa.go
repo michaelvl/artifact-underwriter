@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	vsa1 "github.com/in-toto/attestation/go/predicates/vsa/v1"
-	"github.com/in-toto/in-toto-golang/in_toto"
-	ita1 "github.com/in-toto/attestation/go/v1"
-	"github.com/sigstore/cosign/v2/pkg/oci"
 	"github.com/google/go-containerregistry/pkg/name"
+	vsa1 "github.com/in-toto/attestation/go/predicates/vsa/v1"
+	ita1 "github.com/in-toto/attestation/go/v1"
+	"github.com/in-toto/in-toto-golang/in_toto"
+	"github.com/sigstore/cosign/v2/pkg/oci"
 )
 
 func Generate(subject name.Digest, inputAttestations []oci.Signature, result string) (*in_toto.Statement, error) {
@@ -28,7 +28,7 @@ func Generate(subject name.Digest, inputAttestations []oci.Signature, result str
 			return nil, err
 		}
 		inputs = append(inputs, &vsa1.VerificationSummary_InputAttestation{
-			Uri: "uri",
+			Uri:    subject.Repository.Name(), // FIXME this url is not strictly correct
 			Digest: map[string]string{digest.Algorithm: digest.Hex},
 		})
 	}
@@ -39,7 +39,7 @@ func Generate(subject name.Digest, inputAttestations []oci.Signature, result str
 	}
 	statement := in_toto.Statement{
 		StatementHeader: in_toto.StatementHeader{
-			Type: ita1.StatementTypeUri,
+			Type:          ita1.StatementTypeUri,
 			PredicateType: "https://slsa.dev/verification_summary/v1",
 			Subject: []in_toto.Subject{
 				in_toto.Subject{
