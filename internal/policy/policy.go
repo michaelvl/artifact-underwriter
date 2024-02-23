@@ -2,6 +2,7 @@ package policy
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/michaelvl/artifact-underwriter/internal/attestations"
@@ -29,7 +30,9 @@ func Evaluate(policy *types.OciPolicy, statements []in_toto.Statement) error {
 		return fmt.Errorf("decoding attestions json: %w", err)
 	}
 
-	fmt.Printf("Len evaluate json: %v\n", len(jsonData))
+	// TODO
+
+	log.Printf("Len evaluate json: %v\n", len(jsonData))
 
 	return nil
 }

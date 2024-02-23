@@ -7,7 +7,7 @@ produce [in-toto attestation
 predicates](https://github.com/in-toto/attestation/tree/main/spec/predicates)
 signed using [cosign](https://github.com/sigstore/cosign) and
 consumers of artifacts, where the consumers should be agnostic to
-organisation policies.
+organisation policies - aka. 'delegated verification'.
 
 ## Overview
 
@@ -32,6 +32,13 @@ steps:
 ```
 
 ...TODO
+
+```shell
+artifact-underwriter evaluate-policy ghcr.io/michaelvl/sigstore-in-toto-workshop:latest \
+  --policy examples/container-policy.yaml \
+  --output-vsa vsa.json
+```
+
 
 Finally, `artifcat-underwriter` can summarize the governance status
 through a [verification summary

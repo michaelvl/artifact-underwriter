@@ -1,11 +1,11 @@
 package attestations
 
 import (
-	"bufio"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/michaelvl/artifact-underwriter/internal/policy/types"
@@ -16,15 +16,12 @@ import (
 	"github.com/in-toto/in-toto-golang/in_toto"
 )
 
-func GetAttestations(ctx context.Context, ociRef string, policy *types.OciPolicy) ([]oci.Signature, []in_toto.Statement, error) {
+func GetAttestations(ctx context.Context, digest name.Digest, policy *types.OciPolicy) ([]oci.Signature, []in_toto.Statement, error) {
 	var err error
 	var attestations []oci.Signature
 	var statements []in_toto.Statement
 
-	ref, err := name.ParseReference(ociRef)
-	if err != nil {
-		return nil, nil, fmt.Errorf("parsing ref: %w", err)
-	}
+	log.Printf("retreiving attestations for %v\n", digest)
 
 	co := cosign.CheckOpts{
 		ClaimVerifier:     cosign.IntotoSubjectClaimVerifier,
@@ -48,7 +45,7 @@ func GetAttestations(ctx context.Context, ociRef string, policy *types.OciPolicy
 	}
 
 	for _, step := range policy.Steps {
-		fmt.Printf(">> Step %v\n", step.Name)
+		log.Printf("processing step %v\n", step.Name)
 		var identities []cosign.Identity
 		for _, functionary := range step.Functionaries {
 			ident := cosign.Identity{}
@@ -60,15 +57,14 @@ func GetAttestations(ctx context.Context, ociRef string, policy *types.OciPolicy
 		}
 		co.Identities = identities
 
-		verified, bundleVerified, err := cosign.VerifyImageAttestations(ctx, ref, &co)
+		verified, bundleVerified, err := cosign.VerifyImageAttestations(ctx, digest, &co)
 		if err != nil || !bundleVerified {
 			return nil, nil, fmt.Errorf("verifying attestations: %w", err)
 		}
-		fmt.Printf(">> verified len %v\n", len(verified))
+		log.Printf("found %v attestations\n", len(verified))
 
 		for idx := range verified {
 			att := verified[idx]
-			attestations = append(attestations, att)
 			attPayload, err := att.Payload()
 			if err != nil {
 				return nil, nil, fmt.Errorf("getting attestation payload: %w", err)
@@ -91,39 +87,55 @@ func GetAttestations(ctx context.Context, ociRef string, policy *types.OciPolicy
 			}
 			for _, attestation := range step.Attestations {
 				if statement.PredicateType == attestation.Type {
+					attestations = append(attestations, att)
 					statements = append(statements, statement)
 				}
 			}
 		}
-		fmt.Printf(">> statements len %v\n", len(statements))
+		log.Printf("matched %v attestions\n", len(attestations))
 	}
 
+	log.Printf("%v attestions:\n", len(attestations))
 	for _, statement := range statements {
-		fmt.Printf(">> type: %v\n", statement.PredicateType)
+		log.Printf("type: %v\n", statement.PredicateType)
 	}
 
 	return attestations, statements, nil
 }
 
-func WriteAttestations(statements []in_toto.Statement, outputPath string) error {
+func WriteStatements(statements []in_toto.Statement, outputPath string) error {
 	jsonData, err := StatementsToJson(statements)
 	if err != nil {
-		return fmt.Errorf("decoding attestions json: %w", err)
+		return fmt.Errorf("decoding statement json: %w", err)
 	}
+	return WriteJson(jsonData, outputPath)
+}
 
+func WriteStatement(statement *in_toto.Statement, outputPath string) error {
+	jsonData, err := StatementsToJson([]in_toto.Statement{*statement})
+	if err != nil {
+		return fmt.Errorf("decoding statement json: %w", err)
+	}
+	return WriteJson(&jsonData[0], outputPath)
+}
+
+func WriteJson(jsonData any, outputPath string) error {
 	f, err := os.Create(outputPath)
 	if err != nil {
 		return fmt.Errorf("opening attestation file: %w", err)
 	}
-
+	defer f.Close()
 	jsonText, err := json.Marshal(jsonData)
 	if err != nil {
 		return fmt.Errorf("marshalling attestation to json: %w", err)
 	}
-	w := bufio.NewWriter(f)
-	_, err = w.WriteString(string(jsonText))
+	st := string(jsonText)
+	lenW, err := f.WriteString(st)
 	if err != nil {
 		return fmt.Errorf("writing attestation json to file: %w", err)
+	}
+	if lenW != len(st) {
+		return fmt.Errorf("writing data to file")
 	}
 	return nil
 }
