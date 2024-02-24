@@ -1,0 +1,54 @@
+name: App build and release
+
+on:
+  push:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    permissions:
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # tag=v5.0.0
+      with:
+        go-version-file: "go.mod"
+        cache: true
+
+    - name: Tests
+      run: |
+        make build lint
+
+  release:
+    if: github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    needs:
+    - test
+    steps:
+    - name: Checkout
+      uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # tag=v5.0.0
+      with:
+        go-version-file: "go.mod"
+        cache: true
+
+    - name: GoReleaser
+      uses: goreleaser/goreleaser-action@7ec5c2b0c6cdda6e8bbb49444bc797dd33d74dd8  # v5.0.0
+      with:
+        version: latest
+        args: release --clean
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

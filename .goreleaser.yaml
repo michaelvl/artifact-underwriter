@@ -1,0 +1,32 @@
+project_name: artifact-underwriter
+
+builds:
+  - id: linux
+    binary: artifact-underwriter
+    no_unique_dist_dir: true
+    main: ./main.go
+    flags:
+      - -trimpath
+    mod_timestamp: '{{ .CommitTimestamp }}'
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+      - arm64
+    ldflags:
+      - "-X github.com/michaelvl/artifact-underwriter/internal/build.Version={{ .Version }}"
+    env:
+      - CGO_ENABLED=0
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Version }}-devel"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
