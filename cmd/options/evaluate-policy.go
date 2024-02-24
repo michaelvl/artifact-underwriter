@@ -10,7 +10,7 @@ type EvaluateOptions struct {
 	OutputVsaPath               string
 	FailOnPolicyValidationError bool
 	SlsaVsaPassVerifiedLevel    string
-	VerifierId                  string
+	VerifierID                  string
 }
 
 func (o *EvaluateOptions) AddFlags(cmd *cobra.Command) {
@@ -25,6 +25,6 @@ func (o *EvaluateOptions) AddFlags(cmd *cobra.Command) {
 		"exit with non-zero exit code if policy verification fail")
 	cmd.Flags().StringVar(&o.SlsaVsaPassVerifiedLevel, "vsa-verified-level", "SLSA_BUILD_LEVEL_3",
 		"SLSA verification level to insert into VSA")
-	cmd.Flags().StringVar(&o.VerifierId, "verifier-id", "github.com/michaelvl/artifact-underwriter",
+	cmd.Flags().StringVar(&o.VerifierID, "verifier-id", "github.com/michaelvl/artifact-underwriter",
 		"Verifier ID to insert into VSA")
 }

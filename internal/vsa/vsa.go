@@ -11,7 +11,7 @@ import (
 	"github.com/sigstore/cosign/v2/pkg/oci"
 )
 
-func Generate(subject name.Digest, inputAttestations []oci.Signature, result, verificationLvl,verifierId string) (*in_toto.Statement, error) {
+func Generate(subject name.Digest, inputAttestations []oci.Signature, result, verificationLvl, verifierID string) (*in_toto.Statement, error) {
 	var inputs []*vsa1.VerificationSummary_InputAttestation
 
 	parts := strings.Split(subject.DigestStr(), ":")
@@ -35,11 +35,11 @@ func Generate(subject name.Digest, inputAttestations []oci.Signature, result, ve
 
 	predicate := &vsa1.VerificationSummary{
 		Verifier: &vsa1.VerificationSummary_Verifier{
-			Id: verifierId,
+			Id: verifierID,
 		},
 		InputAttestations:  inputs,
 		VerificationResult: result,
-		VerifiedLevels: verificationLvl,
+		VerifiedLevels:     verificationLvl,
 	}
 	statement := in_toto.Statement{
 		StatementHeader: in_toto.StatementHeader{
