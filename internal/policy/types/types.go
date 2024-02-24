@@ -21,7 +21,7 @@ type Policy struct {
 type RegoPolicy struct {
 	Bundle string `json:"bundle"`
 	Path   string `json:"path"`
-	Uri    string `json:"uri"`
+	URI    string `json:"uri"`
 }
 
 type Step struct {
