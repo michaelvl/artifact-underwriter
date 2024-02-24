@@ -9,6 +9,7 @@ import (
 	ita1 "github.com/in-toto/attestation/go/v1"
 	"github.com/in-toto/in-toto-golang/in_toto"
 	"github.com/sigstore/cosign/v2/pkg/oci"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func Generate(subject name.Digest, inputAttestations []oci.Signature, result, verificationLvl, verifierID string) (*in_toto.Statement, error) {
@@ -38,6 +39,7 @@ func Generate(subject name.Digest, inputAttestations []oci.Signature, result, ve
 			Id: verifierID,
 		},
 		InputAttestations:  inputs,
+		TimeVerified:       timestamppb.Now(),
 		VerificationResult: result,
 		VerifiedLevels:     verificationLvl,
 	}
