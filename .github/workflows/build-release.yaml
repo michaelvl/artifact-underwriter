@@ -3,7 +3,9 @@ name: App build and release
 on:
   push:
     branches:
-      - '**'
+    - '**'
+    paths-ignore:
+    - README.md
 
 jobs:
   test:

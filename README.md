@@ -6,8 +6,13 @@
 produce [in-toto attestation
 predicates](https://github.com/in-toto/attestation/tree/main/spec/predicates)
 signed using [cosign](https://github.com/sigstore/cosign) and
-consumers of artifacts, where the consumers should be agnostic to
-organisation policies - aka. 'delegated verification'.
+consumers of artifacts such as a Kubernetes [sigstore policy
+controller](https://docs.sigstore.dev/policy-controller/overview),
+where the consumers should be agnostic to organisation policies -
+aka. 'delegated verification'. This is summarised in the illustration
+below:
+
+![artifact-underwriter general functionality](docs/images/overview.png)
 
 ## Overview
 
