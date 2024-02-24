@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/michaelvl/artifact-underwriter/cmd/options"
@@ -21,7 +22,8 @@ func EvaluatePolicyCmd() *cobra.Command {
 		Args:       cobra.MinimumNArgs(1),
 		ArgAliases: []string{"oci-artifact-ref"},
 		RunE: func(cmd *cobra.Command, args []string) error {
-			pol, err := policy.Load("examples/container-policy.yaml")
+			log.Printf("loading policy %v\n", opts.PolicyPath)
+			pol, err := policy.Load(opts.PolicyPath)
 			if err != nil {
 				return err
 			}
@@ -30,6 +32,7 @@ func EvaluatePolicyCmd() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			atts, statements, err := attestations.GetAttestations(context.Background(), digest, pol)
 			if err != nil {
 				return err
@@ -61,6 +64,9 @@ func EvaluatePolicyCmd() *cobra.Command {
 				}
 			}
 
+			if opts.FailOnPolicyValidationError {
+				return fmt.Errorf("validation failed")
+			}
 			return nil
 		},
 	}

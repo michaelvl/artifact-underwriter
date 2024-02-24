@@ -5,9 +5,10 @@ import (
 )
 
 type EvaluateOptions struct {
-	PolicyPath             string
-	OutputAttestationsPath string
-	OutputVsaPath          string
+	PolicyPath                  string
+	OutputAttestationsPath      string
+	OutputVsaPath               string
+	FailOnPolicyValidationError bool
 }
 
 func (o *EvaluateOptions) AddFlags(cmd *cobra.Command) {
@@ -18,4 +19,6 @@ func (o *EvaluateOptions) AddFlags(cmd *cobra.Command) {
 		"path to write raw attestation json to")
 	cmd.Flags().StringVar(&o.OutputVsaPath, "output-vsa", "",
 		"path to write verification-statement attestation to")
+	cmd.Flags().BoolVar(&o.FailOnPolicyValidationError, "fail-on-validation-error", false,
+		"exit with non-zero exit code if policy verification fail")
 }
