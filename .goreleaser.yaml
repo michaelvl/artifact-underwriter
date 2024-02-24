@@ -3,7 +3,6 @@ project_name: artifact-underwriter
 builds:
   - id: linux
     binary: artifact-underwriter
-    no_unique_dist_dir: true
     main: ./main.go
     flags:
       - -trimpath
