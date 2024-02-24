@@ -45,7 +45,7 @@ artifact-underwriter evaluate-policy ghcr.io/michaelvl/sigstore-in-toto-workshop
 ```
 
 
-Finally, `artifcat-underwriter` can summarize the governance status
+Finally, `artifact-underwriter` can summarize the governance status
 through a [verification summary
 attestation (VSA)](https://slsa.dev/spec/v1.0/verification_summary):
 
