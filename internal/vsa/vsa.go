@@ -34,6 +34,9 @@ func Generate(subject name.Digest, inputAttestations []oci.Signature, result str
 	}
 
 	predicate := &vsa1.VerificationSummary{
+		Verifier: &vsa1.VerificationSummary_Verifier{
+			Id: "github.com/michaelvl/artifact-underwriter",
+		},
 		InputAttestations:  inputs,
 		VerificationResult: result,
 	}
