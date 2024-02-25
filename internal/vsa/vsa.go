@@ -3,14 +3,26 @@ package vsa
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/google/go-containerregistry/pkg/name"
 	vsa1 "github.com/in-toto/attestation/go/predicates/vsa/v1"
 	ita1 "github.com/in-toto/attestation/go/v1"
 	"github.com/in-toto/in-toto-golang/in_toto"
 	"github.com/sigstore/cosign/v2/pkg/oci"
-	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+// FIXME: Local copy since the vsa1 and specs
+// https://slsa.dev/spec/v1.0/verification_summary differ in timestamp
+// representation
+type VerificationSummary struct {
+	Verifier           *vsa1.VerificationSummary_Verifier
+	TimeVerified       string // This is different
+	InputAttestations  []*vsa1.VerificationSummary_InputAttestation
+	VerificationResult string
+	VerifiedLevels     string
+	SlsaVersion        string
+}
 
 func Generate(subject name.Digest, inputAttestations []oci.Signature, result, verificationLvl, verifierID string) (*in_toto.Statement, error) {
 	var inputs []*vsa1.VerificationSummary_InputAttestation
@@ -34,12 +46,12 @@ func Generate(subject name.Digest, inputAttestations []oci.Signature, result, ve
 		})
 	}
 
-	predicate := &vsa1.VerificationSummary{
+	predicate := &VerificationSummary{
 		Verifier: &vsa1.VerificationSummary_Verifier{
 			Id: verifierID,
 		},
 		InputAttestations:  inputs,
-		TimeVerified:       timestamppb.Now(),
+		TimeVerified:       time.Now().Format(time.RFC3339),
 		VerificationResult: result,
 		VerifiedLevels:     verificationLvl,
 	}

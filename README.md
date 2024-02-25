@@ -8,16 +8,45 @@ predicates](https://github.com/in-toto/attestation/tree/main/spec/predicates)
 signed using [cosign](https://github.com/sigstore/cosign) and
 consumers of artifacts such as a Kubernetes [sigstore policy
 controller](https://docs.sigstore.dev/policy-controller/overview),
-where the consumers should be agnostic to organisation policies -
+where the consumers should be agnostic to organisation policies and
+the verification should be abstracted using the [in-toto Verification
+Summary Attestion](https://slsa.dev/spec/v1.0/verification_summary) (VSA) -
 aka. 'delegated verification'. This is summarised in the illustration
 below:
 
 ![artifact-underwriter general functionality](docs/images/overview.png)
 
-## Overview
+## Underwriter?
 
-`artifact-underwriter` allows governance policies to be defined as
-illustrated below. This basically define how to verify attestations.
+The name of `artifact-underwriter` is derived from the role in
+e.g. banking/insurance, where an underwriter is a person that
+evaluates various documents and statements prior to e.g. issuing a
+loan or an insurance. The process of evaluating documents from various
+sources with the aim of producing a 'risk' evaluation matches well
+with how `artifact-underwriter` collects attestations, verifies their
+provenance through signatures, applies additional policies and produce
+a final verification summary attestation.
+
+## Getting Started
+
+A governance policy is a declaration of which attestations are needed
+from which identities and which additional verification should be
+performed on the statements to issue a 'PASSED' verification
+summary. E.g.:
+
+- A SLSA provenance, SBOM and vulnerability scan attestations must be present
+- The attestations must be issued by the identity 'github.com/example/workflow'
+- Additionally these checks should pass:
+  * The vulnerability scan must be created within the last 48 hours
+  * The vulnerability scanner version must be > xx.
+
+While `cosign verify-attestation` comes close to provide such
+verification it does not produce a VSA or support multiple
+combinations of attestations and identities.
+
+With `artifact-underwriter` governance policies can be defined as
+illustrated below (partly inspired by [in-toto witness
+policies](https://github.com/in-toto/witness)):
 
 ```yaml
 apiVersion: v1alpha1
@@ -34,9 +63,17 @@ steps:
     certificate:
       identityRegexp: "https://github.com/michaelvl/gha-reusable-workflows/.github/workflows/container-build-push.yaml@refs/.*"
       oidcIssuer: https://token.actions.githubusercontent.com
+
+  # More steps are allowed - allowing multiple combinations of attestations and identities
+
+# Policies (Rego) used to apply additional verification of attestations
+policy:
+  rego:
+    path: examples/policy/governance.rego
 ```
 
-...TODO
+Given an OCI reference and a policy as shown above,
+`artifact-underwriter` can create a VSA:
 
 ```shell
 artifact-underwriter evaluate-policy ghcr.io/michaelvl/sigstore-in-toto-workshop:latest \
@@ -44,27 +81,23 @@ artifact-underwriter evaluate-policy ghcr.io/michaelvl/sigstore-in-toto-workshop
   --output-vsa vsa.json
 ```
 
-
-Finally, `artifact-underwriter` can summarize the governance status
-through a [verification summary
-attestation (VSA)](https://slsa.dev/spec/v1.0/verification_summary):
+Which will produce the [verification summary
+attestation](https://slsa.dev/spec/v1.0/verification_summary):
 
 ```yaml
 {
   "predicateType": "https://slsa.dev/verification_summary/v1",
   "subject": [
     {
-	  ... which artifact was verified
+      ... which artifact was verified
     }
   ],
   "predicate": {
     "policy": {
-	  ... what policy was used to verify
+      ... what policy was used to verify
     },
 
-	... summary of the verification
-    "slsaVersion": "1.0",
-    "timeVerified": "2024-02-10T16:11:33+00:00",
+    ... summary of the verification
     "verificationResult": "PASSED",
     "verifiedLevels": [
       "SLSA_BUILD_LEVEL_3"
@@ -80,7 +113,8 @@ using e.g. the following `ClusterImagePolicy`.
 
 Note how the VSA provide abstraction of the governance policies and
 the `ClusterImagePolicy` only verifies that verification was `PASSED`
-at SLSA level 3 within the last 48 hours.
+at SLSA level 3 within the last 48 hours. This is an example of a
+'delegated verification'.
 
 ```yaml
 apiVersion: policy.sigstore.dev/v1beta1
@@ -116,8 +150,19 @@ spec:
           }
 ```
 
-## References
+## Credits and References
 
-This tool is inspired by
+- This tool is inspired by
 [in-toto/witness](https://github.com/in-toto/witness) and
 [liatrio/gh-trusted-builds-attestations](https://github.com/liatrio/gh-trusted-builds-attestations)
+
+- [in-toto/attestation-verifier](https://github.com/in-toto/attestation-verifier)
+might evolve into something similar to `artifact-underwriter`.
+
+- [in-toto PR 'Add an attestation for policy verification'](https://github.com/in-toto/attestation/pull/295)
+
+- An end-to-end example usage of this tools can be found in
+  [michaelvl/sigstore-in-toto-workshop](https://github.com/michaelvl/sigstore-in-toto-workshop)
+  (example application starter workflow) and
+  [michaelvl/gha-reusable-workflows](https://github.com/michaelvl/gha-reusable-workflows)
+  (trusted workflows that produce VSA).
