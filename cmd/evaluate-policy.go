@@ -53,14 +53,22 @@ func EvaluatePolicyCmd() *cobra.Command {
 			}
 			log.Printf("policy evaluation status: %v\n", allowedText)
 
-			if opts.OutputVsaPath != "" {
+			if opts.OutputVsaPath != "" || opts.OutputVsaPredicatePath != "" {
 				vsa, err := vsa.Generate(digest, atts, allowedText, opts.SlsaVsaPassVerifiedLevel, opts.VerifierID)
 				if err != nil {
 					return err
 				}
-				err = attestations.WriteStatement(vsa, opts.OutputVsaPath)
-				if err != nil {
-					return err
+				if opts.OutputVsaPath != "" {
+					err = attestations.WriteStatement(vsa, opts.OutputVsaPath)
+					if err != nil {
+						return err
+					}
+				}
+				if opts.OutputVsaPredicatePath != "" {
+					err = attestations.WritePredicate(vsa, opts.OutputVsaPredicatePath)
+					if err != nil {
+						return err
+					}
 				}
 			}
 

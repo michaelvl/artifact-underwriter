@@ -119,6 +119,14 @@ func WriteStatement(statement *in_toto.Statement, outputPath string) error {
 	return WriteJson(&jsonData[0], outputPath)
 }
 
+func WritePredicate(statement *in_toto.Statement, outputPath string) error {
+	jsonData, err := StatementsToJson([]in_toto.Statement{*statement})
+	if err != nil {
+		return fmt.Errorf("decoding statement json: %w", err)
+	}
+	return WriteJson(jsonData[0]["predicate"], outputPath)
+}
+
 func WriteJson(jsonData any, outputPath string) error {
 	f, err := os.Create(outputPath)
 	if err != nil {
