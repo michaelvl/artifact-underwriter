@@ -20,7 +20,7 @@ type VerificationSummary struct {
 	TimeVerified       string                                       `json:"timeVerified"`
 	InputAttestations  []*vsa1.VerificationSummary_InputAttestation `json:"inputAttestations"`
 	VerificationResult string                                       `json:"verificationResult"`
-	VerifiedLevels     string                                       `json:"verifiedLevels"`
+	VerifiedLevels     []string                                     `json:"verifiedLevels"`
 	SlsaVersion        string                                       `json:"slsaVersion"`
 }
 
@@ -53,7 +53,7 @@ func Generate(subject name.Digest, inputAttestations []oci.Signature, result, ve
 		InputAttestations:  inputs,
 		TimeVerified:       time.Now().Format(time.RFC3339),
 		VerificationResult: result,
-		VerifiedLevels:     verificationLvl,
+		VerifiedLevels:     []string{verificationLvl},
 		SlsaVersion:        "1.0",
 	}
 	statement := in_toto.Statement{
