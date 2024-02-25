@@ -150,6 +150,40 @@ spec:
           }
 ```
 
+## Rego Policies
+
+`artifact-underwriter` will fetch and verify signatures on all
+attestations as specified in the policy. Next, it will pass the
+attestation bundle to Open Policy Agent as `input`. The pass/no-pass
+status of the Rego policy evaluation is determined by the query
+`data.governance.allow` against the OpenPolicyAgent output.
+
+A simple Rego policy could thus be (see [`examples/policy/governance.rego`](examples/policy/governance.rego)):
+
+```rego
+package governance
+
+default allow = false
+
+# Collect all provenance attestions
+provenance_attestations := [input[i] | input[i].predicateType == "https://slsa.dev/provenance/v0.2"]
+
+...
+
+# Check for violations in provenance attestations - this is a simple check for presence of provenance
+provenance_violations[msg] {
+    count(provenance_attestations) == 0
+    msg:= "no provenance attestation"
+}
+
+# Produce final verdict by combining all checks
+allow {
+    violations := provenance_violations | sbom_violations | vuln_violations | pr_violations
+    print(violations)
+    count(violations) == 0
+}
+```
+
 ## Credits and References
 
 - This tool is inspired by
