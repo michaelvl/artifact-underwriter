@@ -16,12 +16,12 @@ import (
 // https://slsa.dev/spec/v1.0/verification_summary differ in timestamp
 // representation
 type VerificationSummary struct {
-	Verifier           *vsa1.VerificationSummary_Verifier
-	TimeVerified       string // This is different
-	InputAttestations  []*vsa1.VerificationSummary_InputAttestation
-	VerificationResult string
-	VerifiedLevels     string
-	SlsaVersion        string
+	Verifier           *vsa1.VerificationSummary_Verifier           `json:"verifier"`
+	TimeVerified       string                                       `json:"timeVerified"`
+	InputAttestations  []*vsa1.VerificationSummary_InputAttestation `json:"inputAttestations"`
+	VerificationResult string                                       `json:"verificationResult"`
+	VerifiedLevels     string                                       `json:"verifiedLevels"`
+	SlsaVersion        string                                       `json:"slsaVersion"`
 }
 
 func Generate(subject name.Digest, inputAttestations []oci.Signature, result, verificationLvl, verifierID string) (*in_toto.Statement, error) {
@@ -54,6 +54,7 @@ func Generate(subject name.Digest, inputAttestations []oci.Signature, result, ve
 		TimeVerified:       time.Now().Format(time.RFC3339),
 		VerificationResult: result,
 		VerifiedLevels:     verificationLvl,
+		SlsaVersion:        "1.0",
 	}
 	statement := in_toto.Statement{
 		StatementHeader: in_toto.StatementHeader{
