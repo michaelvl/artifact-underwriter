@@ -24,7 +24,7 @@ type VerificationSummary struct {
 	SlsaVersion        string                                       `json:"slsaVersion"`
 }
 
-func Generate(subject name.Digest, inputAttestations []oci.Signature, result, verificationLvl, verifierID string) (*in_toto.Statement, error) {
+func Generate(subject name.Digest, inputAttestations []oci.Signature, result string, verificationLvls []string, verifierID string) (*in_toto.Statement, error) {
 	var inputs []*vsa1.VerificationSummary_InputAttestation
 
 	parts := strings.Split(subject.DigestStr(), ":")
@@ -53,7 +53,7 @@ func Generate(subject name.Digest, inputAttestations []oci.Signature, result, ve
 		InputAttestations:  inputs,
 		TimeVerified:       time.Now().Format(time.RFC3339),
 		VerificationResult: result,
-		VerifiedLevels:     []string{verificationLvl},
+		VerifiedLevels:     verificationLvls,
 		SlsaVersion:        "1.0",
 	}
 	statement := in_toto.Statement{

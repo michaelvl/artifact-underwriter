@@ -3,7 +3,6 @@ package rego
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/michaelvl/artifact-underwriter/internal/policy/types"
 
@@ -11,16 +10,28 @@ import (
 )
 
 func Evaluate(policy *types.OciPolicy, input []map[string]any) (bool, error) {
-	policyData, err := os.ReadFile(policy.Policy.Rego.Path)
-	if err != nil {
-		return false, fmt.Errorf("reading file: %w", err)
-	}
+	var rg *rego.Rego
 
-	rg := rego.New(
-		rego.Query("data.governance.allow"),
-		rego.Module(policy.Policy.Rego.Path, string(policyData)),
-		rego.Input(input),
-	)
+	query := "data.governance.allow"
+	if policy.Policy.Rego.Query != "" {
+		query = policy.Policy.Rego.Query
+	}
+	switch {
+	case policy.Policy.Rego.BundlePath != "":
+		rg = rego.New(
+			rego.Query("data.governance.allow"),
+			rego.LoadBundle(policy.Policy.Rego.BundlePath),
+			rego.Input(input),
+		)
+	case policy.Policy.Rego.Path != "":
+		rg = rego.New(
+			rego.Query(query),
+			rego.Load([]string{policy.Policy.Rego.Path}, nil),
+			rego.Input(input),
+		)
+	default:
+		return false, fmt.Errorf("need either a policy or bundle path")
+	}
 	rs, err := rg.Eval(context.Background())
 	if err != nil {
 		return false, fmt.Errorf("evaluating rego: %w", err)

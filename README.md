@@ -1,6 +1,6 @@
 # Artifact Underwriter
 
-:construction: This tool is a PoC. Don't use it for production use-cases.
+:construction: This tool is under development. Breaking changes may be introduced and strict semver releases will not be followed.
 
 `artifact-underwriter` is the governance link between workflows that
 produce [in-toto attestation

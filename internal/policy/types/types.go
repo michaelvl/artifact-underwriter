@@ -1,27 +1,9 @@
 package types
 
-type Attestation struct {
-	Type string `json:"type"`
-}
-
-type Certificate struct {
-	IdentityRegexp string `json:"identityRegexp"`
-	OidcIssuer     string `json:"oidcIssuer"`
-}
-
-type Functionary struct {
-	Type        string      `json:"type"`
-	Certificate Certificate `json:"certificate"`
-}
-
-type Policy struct {
-	Rego RegoPolicy `json:"rego"`
-}
-
-type RegoPolicy struct {
-	Bundle string `json:"bundle"`
-	Path   string `json:"path"`
-	URI    string `json:"uri"`
+type OciPolicy struct {
+	Kind   string `json:"kind"`
+	Steps  []Step `json:"steps"`
+	Policy Policy `json:"policy"`
 }
 
 type Step struct {
@@ -30,8 +12,37 @@ type Step struct {
 	Functionaries []Functionary `json:"functionaries"`
 }
 
-type OciPolicy struct {
-	Kind   string `json:"kind"`
-	Steps  []Step `json:"steps"`
-	Policy Policy `json:"policy"`
+type Attestation struct {
+	// In-toto predicate type, see https://github.com/in-toto/attestation/tree/main/spec/predicates
+	Type string `json:"type"`
+}
+
+// Functionary defines who are allowed to sign a given attestation
+type Functionary struct {
+	// Type of the functionary. Currently only 'sigstore-keyless' is supported
+	Type        string      `json:"type"`
+	Certificate Certificate `json:"certificate"`
+}
+
+// Certificate define the identity of a functionary
+type Certificate struct {
+	// OIDC subject regular expression
+	IdentityRegexp string `json:"identityRegexp"`
+	// OIDC issuer URL
+	OidcIssuer string `json:"oidcIssuer"`
+}
+
+type Policy struct {
+	Rego RegoPolicy `json:"rego"`
+}
+
+type RegoPolicy struct {
+	// The query defining policy valuation result. A boolean result is expected, with 'true' indicating validation success
+	Query string `json:"query"`
+	// OpenPolicyAgent policy bundle path. See https://www.openpolicyagent.org/docs/latest/management-bundles
+	BundlePath string `json:"bundle"`
+	// Path to Rego policy files. May be either a file or a directory
+	Path string `json:"path"`
+	// Not yet supported
+	// URI        string `json:"uri"`
 }

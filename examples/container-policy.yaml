@@ -8,7 +8,7 @@ steps:
   - type: https://spdx.dev/Document
   - type: https://github.com/michaelvl/gha-reusable-workflows/pr-provenance
   functionaries:
-  - type: fulcio
+  - type: sigstore-keyless
     certificate:
       identityRegexp: "https://github.com/michaelvl/gha-reusable-workflows/.github/workflows/container-build-push.yaml@refs/.*"
       oidcIssuer: https://token.actions.githubusercontent.com
@@ -25,3 +25,4 @@ steps:
 policy:
   rego:
     path: examples/policy/governance.rego
+    query: data.governance.allow

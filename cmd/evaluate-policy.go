@@ -54,7 +54,7 @@ func EvaluatePolicyCmd() *cobra.Command {
 			log.Printf("policy evaluation status: %v\n", allowedText)
 
 			if opts.OutputVsaPath != "" || opts.OutputVsaPredicatePath != "" {
-				vsa, err := vsa.Generate(digest, atts, allowedText, opts.SlsaVsaPassVerifiedLevel, opts.VerifierID)
+				vsa, err := vsa.Generate(digest, atts, allowedText, []string{opts.SlsaVsaPassVerifiedLevel}, opts.VerifierID)
 				if err != nil {
 					return err
 				}

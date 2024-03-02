@@ -13,3 +13,7 @@ lint:
 .PHONY: goimports
 goimports:
 	goimports -l -w .
+
+.PHONY: pack-policy-bundle
+pack-policy-bundle:
+	opa build examples/policy -o policybundle.tar.gz

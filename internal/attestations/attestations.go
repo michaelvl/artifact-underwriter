@@ -49,7 +49,7 @@ func GetAttestations(ctx context.Context, digest name.Digest, policy *types.OciP
 		var identities []cosign.Identity
 		for _, functionary := range step.Functionaries {
 			ident := cosign.Identity{}
-			if functionary.Type == "fulcio" {
+			if functionary.Type == "sigstore-keyless" {
 				ident.SubjectRegExp = functionary.Certificate.IdentityRegexp
 				ident.Issuer = functionary.Certificate.OidcIssuer
 				identities = append(identities, ident)
